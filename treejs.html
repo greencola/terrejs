@@ -1,0 +1,139 @@
+<html>
+	<head>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5.1/dat.gui.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.js"></script>
+		<script src="https://dl.dropboxusercontent.com/u/3587259/Code/Threejs/OrbitControls.js"></script>
+	</head>
+	<body>
+		<script>
+			var camera, scene, renderer, geometry, material, mesh,stats;
+
+init();
+
+
+function init() {
+
+    scene = new THREE.Scene();
+		camera = new  THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+    
+    renderer = new  THREE.WebGLRenderer();
+    renderer.setClearColor(0x000000,1.0);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    render.shadowMapEnable=true;
+    
+   camera.position.x=15;
+   camera.position.y=16;
+   camera.position.z=13;
+   camera.lookAt(scene.position);
+   
+   cameraControl = new  THREE.OrbitControls(camera);
+  
+  var terreTexture = THREE.ImageUtils.loadTexture("./planets/earthmap10k.jpg");
+  var terreGeometry = new THREE.SphereGeometry(0.5, 32, 32)
+  var terreMaterial = new THREE.MeshLambertMaterial({map:terreTexture});
+  var terre = new THREE.Mesh(terreGeometry,terreMaterial);
+ terre.name="terre";
+ terre.castShadow = true;
+ 
+   scene.add(terre);
+   
+   var luneTexture = THREE.ImageUtils.loadTexture("./planets/moonmap4k.jpg");
+  var luneGeometry = new THREE.SphereGeometry(0.1, 32, 32)
+  var luneMaterial = new THREE.MeshLambertMaterial({map:luneTexture});
+  var lune = new THREE.Mesh(luneGeometry,luneMaterial);
+ lune.name="lune";
+ lune.castShadow = true;
+  lune.position.x=1;
+ 
+   scene.add(lune);
+ 
+ var nuagesTexture = THREE.ImageUtils.loadTexture("./planets/earthhiresclouds4K.png");
+  var nuagesGeometry = new THREE.SphereGeometry(0.51, 32, 32)
+  var nuagesMaterial = new THREE.MeshLambertMaterial({
+  map:nuagesTexture,
+  side        : THREE.DoubleSide,
+  opacity     : 0.8,
+  transparent : true,
+  depthWrite  : false,
+  });
+  var nuages = new THREE.Mesh(nuagesGeometry,nuagesMaterial);
+ nuages.name="nuages";
+ nuages.castShadow = true;
+
+  scene.add( nuages);
+  
+  var spotLight = new THREE.SpotLight(0xffffff);
+  spotLight.position.set(10,20,20);
+  spotLight.shadowCameraNear=20;
+  spotLight.shadowCameraFar=50;
+  spotLight.castShadow=true;
+
+  scene.add(spotLight);
+  
+  control = new function(){
+	this.rotationSpeed = 0.005;
+	this.opacity = 0.6;
+	this.color = terreMaterial.color.getHex();
+};
+addControlGui(control);
+addStatsObject();
+
+   
+   document.body.appendChild(renderer.domElement);
+   
+	 //renderer.render(scene, camera);
+   render();
+}
+
+function addControlGui(controlObject){
+	var gui = new dat.GUI();
+ gui.add(controlObject,'rotationSpeed',-0.01,0.01);
+ gui.add(controlObject,'opacity',0.1,1);
+ gui.addColor(controlObject,'color');
+}
+
+function addStatsObject()
+{
+stats = new Stats();
+stats.setMode(0);
+
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
+
+document.body.appendChild(stats.domElement);
+}
+
+function render()
+{
+var rotSpeed=control.rotationSpeed;
+var lune = scene.getObjectByName('lune');
+var terre = scene.getObjectByName('terre');
+var nuages = scene.getObjectByName('nuages');
+lune.position.x=lune.position.x*Math.cos(rotSpeed/4)+lune.position.z*Math.sin(rotSpeed/4);
+lune.position.z=lune.position.z*Math.cos(rotSpeed/4)-lune.position.x*Math.sin(rotSpeed/4);
+terre.material.opacity = control.opacity;
+terre.material.color = new THREE.Color(control.color);
+terre.rotateY(rotSpeed);
+nuages.rotateY(rotSpeed);
+lune.rotateY(rotSpeed*2);
+stats.update();
+cameraControl.update();
+renderer.render(scene,camera);
+requestAnimationFrame(render);
+}
+
+function handleResize()
+{
+camera.aspect=window.innerWidth/windows.innerHeight;
+camera.updateProjectionMatrix();
+render.setSize(window.innerWidth,window.innerHeight);
+}
+
+
+
+
+		</script>
+	</body>
+</html>
