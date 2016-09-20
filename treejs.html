@@ -22,12 +22,22 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     render.shadowMapEnable=true;
     
-   camera.position.x=15;
-   camera.position.y=16;
-   camera.position.z=13;
+   camera.position.x=8;
+   camera.position.y=8;
+   camera.position.z=8;
    camera.lookAt(scene.position);
    
    cameraControl = new  THREE.OrbitControls(camera);
+   
+    var skyboxTexture = THREE.ImageUtils.loadTexture("./planets/starry_background.jpg");
+  var skyboxGeometry = new THREE.SphereGeometry(10, 32, 32)
+  var skyboxMaterial = new THREE.MeshLambertMaterial({map:skyboxTexture});
+  var skybox = new THREE.Mesh(skyboxGeometry,skyboxMaterial);
+ skybox.name="skybox";
+ skybox.scale.x = -1;
+ skybox.castShadow = true;
+ 
+   scene.add(skybox);
   
   var terreTexture = THREE.ImageUtils.loadTexture("./planets/earthmap10k.jpg");
   var terreGeometry = new THREE.SphereGeometry(0.5, 32, 32)
